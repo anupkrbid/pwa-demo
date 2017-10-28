@@ -1,2 +1,2 @@
 # pwa-demo
-A demo app to understand and implement pwa
+A complete guide to PWAs. Building a simple Instagram clone.
