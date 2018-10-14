@@ -7,7 +7,11 @@ self.addEventListener('activate', function(event) {
   return self.clients.claim();
 });
 
-self.addEventListener('fetch', function(event) {
-  console.log('[SW] ~ Fetching assets ...', event);
-  event.respondWith(fetch(event.request));
-});
+self
+  .addEventListener('fetch', function(event) {
+    console.log('[SW] ~ Fetching assets ...', event);
+    event.respondWith(fetch(event.request));
+  })
+  .catch(function(err) {
+    console.log('[SW] ~ Error while Fetching assets ...', err);
+  });
