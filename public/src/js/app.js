@@ -15,6 +15,16 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// Unregistring a Service Worker
+// if ('serviceWorker' in navigator) {
+//   navigator.serviceWorker.getRegistrations().then(function(registrations) {
+//     console.log('Service Worker Unregistering!');
+//     registrations.forEach(function(registration) {
+//       registration.unregister();
+//     });
+//   });
+// }
+
 window.addEventListener('beforeinstallprompt', function() {
   console.log('Before Install Prompt fired!');
   event.preventDefault();

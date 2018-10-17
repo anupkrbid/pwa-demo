@@ -16,6 +16,25 @@ var STATIC_FILES = [
   'https://fonts.googleapis.com/icon?family=Material+Icons'
 ];
 
+function isInArray(str, arr) {
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i] == str) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// function trimCache(cacheName, maxItems) {
+//   caches.open(cacheName).then(function(cache) {
+//     return cache.keys().then(function(keys) {
+//       if (keys.length > maxItem) {
+//         cache.delete(keys[0]).then(trimCache(cacheName, maxItems));
+//       }
+//     });
+//   });
+// }
+
 self.addEventListener('install', function(event) {
   console.log('[Service Worker] Installing Service Worker ...', event);
   event.waitUntil(
@@ -51,16 +70,13 @@ self.addEventListener('fetch', function(event) {
     event.respondWith(
       caches.open(CACHE_DYNAMIC_NAME).then(function(cache) {
         return fetch(event.request).then(function(res) {
+          // trimCache(CACHE_DYNAMIC_NAME, 10);
           cache.put(event.request.url, res.clone());
           return res;
         });
       })
     );
-  } else if (
-    new RegExp('\\b' + STATIC_FILES.join('\\b|\\b') + '\\b').test(
-      event.request.url
-    )
-  ) {
+  } else if (isInArray(event.request.url, STATIC_FILES)) {
     // Cache Only Stratergy
     return event.respondWith(caches.match(event.request));
   } else {
@@ -73,13 +89,14 @@ self.addEventListener('fetch', function(event) {
           return fetch(event.request)
             .then(function(res) {
               caches.open(CACHE_DYNAMIC_NAME).then(function(cache) {
+                // trimCache(CACHE_DYNAMIC_NAME, 10);
                 cache.put(event.request.url, res.clone());
                 return res;
               });
             })
             .catch(function(err) {
               return caches.open(CACHE_STATIC_NAME).then(function(cache) {
-                if (event.request.url.indexOf('/help') > -1) {
+                if (event.request.headers.get('accept').includes('text/html')) {
                   return caches.match('offline.html');
                 }
               });
