@@ -1,16 +1,21 @@
+importScripts('/src/js/lib/idb.js');
+importScripts('/src/js/utility.js');
+
 var CACHE_STATIC_NAME = 'static-v1';
 var CACHE_DYNAMIC_NAME = 'dynamic-v1';
 var STATIC_FILES = [
   '/',
   '/index.html',
   '/offline.html',
-  '/src/js/app.js',
-  '/src/js/feed.js',
-  '/src/js/lib/fetch.js',
-  '/src/js/lib/promise.js',
-  '/src/js/lib/material.min.js',
   '/src/css/app.css',
   '/src/css/feed.css',
+  '/src/js/lib/promise.js',
+  '/src/js/lib/fetch.js',
+  '/src/js/lib/idb.js',
+  '/src/js/lib/material.min.js',
+  '/src/js/utility.js',
+  '/src/js/app.js',
+  '/src/js/feed.js',
   '/src/images/main-image.jpg',
   'https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.indigo-pink.min.css',
   'https://fonts.googleapis.com/icon?family=Material+Icons'
@@ -64,16 +69,25 @@ self.addEventListener('activate', function(event) {
 
 // Cache then Network Stratergy combined with Custom Stratergy and Cache Only Stratergy
 self.addEventListener('fetch', function(event) {
-  var url = 'https://httpbin.org/get';
+  var url = 'https://pwa-gram-app.firebaseio.com/posts.json';
   if (event.request.url.indexOf(url) > -1) {
     // Cache then network Stratergy
     event.respondWith(
-      caches.open(CACHE_DYNAMIC_NAME).then(function(cache) {
-        return fetch(event.request).then(function(res) {
-          // trimCache(CACHE_DYNAMIC_NAME, 10);
-          cache.put(event.request.url, res.clone());
-          return res;
-        });
+      fetch(event.request).then(function(res) {
+        // trimCache(CACHE_DYNAMIC_NAME, 10);
+        var clonedRes = res.clone();
+        clearDataAll('posts')
+          .then(function() {
+            return clonedRes.json();
+          })
+          .then(function(posts) {
+            for (key in posts) {
+              var tmp = posts[key];
+              tmp.id = key;
+              writeData('posts', tmp);
+            }
+          });
+        return res;
       })
     );
   } else if (isInArray(event.request.url, STATIC_FILES)) {

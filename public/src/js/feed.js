@@ -5,6 +5,13 @@ var sharedMomentsArea = document.querySelector('#shared-moments');
 var closeCreatePostModalButton = document.querySelector(
   '#close-create-post-modal-btn'
 );
+var dbPromise = idb.open('posts-store', 1, function(db) {
+  if (!db.objectStoreNames.contains('posts')) {
+    db.createObjectStore('posts', {
+      keyPath: 'id'
+    });
+  }
+});
 
 function openCreatePostModal() {
   createPostArea.style.display = 'block';
@@ -36,23 +43,23 @@ function clearCard() {
   }
 }
 
-function createCard() {
+function createCard(post) {
   var cardWrapper = document.createElement('div');
   cardWrapper.className = 'shared-moment-card mdl-card mdl-shadow--2dp';
   var cardTitle = document.createElement('div');
   cardTitle.className = 'mdl-card__title';
-  cardTitle.style.backgroundImage = 'url("/src/images/sf-boat.jpg")';
+  cardTitle.style.backgroundImage = 'url("' + post.image + '")';
   cardTitle.style.backgroundSize = 'cover';
   cardTitle.style.height = '180px';
   cardWrapper.appendChild(cardTitle);
   var cardTitleTextElement = document.createElement('h2');
   cardTitleTextElement.style.color = 'white';
   cardTitleTextElement.className = 'mdl-card__title-text';
-  cardTitleTextElement.textContent = 'San Francisco Trip';
+  cardTitleTextElement.textContent = post.title;
   cardTitle.appendChild(cardTitleTextElement);
   var cardSupportingText = document.createElement('div');
   cardSupportingText.className = 'mdl-card__supporting-text';
-  cardSupportingText.textContent = 'In San Francisco';
+  cardSupportingText.textContent = post.location;
   cardSupportingText.style.textAlign = 'center';
   // var cardSaveButton = document.createElement('button');
   // cardSaveButton.textContent = 'Save';
@@ -63,30 +70,36 @@ function createCard() {
   sharedMomentsArea.appendChild(cardWrapper);
 }
 
-var url = 'https://httpbin.org/get';
+function updateUI(posts) {
+  clearCard();
+  for (var i = 0; i < posts.length; i++) {
+    createCard(posts[i]);
+  }
+}
+
+var url = 'https://pwa-gram-app.firebaseio.com/posts.json';
 var networkDataReceived = false;
 fetch(url)
   .then(function(res) {
     return res.json();
   })
-  .then(function(data) {
+  .then(function(posts) {
     networkDataReceived = true;
-    clearCard();
-    createCard();
+    var data = [];
+    for (key in posts) {
+      var tmp = posts[key];
+      tmp.id = key;
+      data.push(tmp);
+    }
+    updateUI(data);
   });
 
-if ('caches' in window) {
-  caches
-    .match(url)
-    .then(function(res) {
-      return res.json();
-    })
-    .then(function(data) {
-      if (!networkDataReceived) {
-        clearCard();
-        createCard();
-      }
-    });
+if ('indexedDB' in window) {
+  readDataAll('posts').then(function(data) {
+    if (!networkDataReceived) {
+      updateUI(data);
+    }
+  });
 }
 
 // Currently not in use, Allows to cache data on demand
