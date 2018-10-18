@@ -15,6 +15,9 @@ var dbPromise = idb.open('posts-store', 1, function(db) {
 
 function openCreatePostModal() {
   createPostArea.style.display = 'block';
+  setTimeout(function() {
+    createPostArea.style.transform = 'translateY(0)';
+  }, 0);
   if (deferredPrompt) {
     deferredPrompt.prompt();
     deferredPrompt.userChoice.then(function(choiceResult) {
@@ -30,7 +33,10 @@ function openCreatePostModal() {
 }
 
 function closeCreatePostModal() {
-  createPostArea.style.display = 'none';
+  createPostArea.style.transform = 'translateY(100vh)';
+  setTimeout(function() {
+    createPostArea.style.display = 'none';
+  }, 300);
 }
 
 shareImageButton.addEventListener('click', openCreatePostModal);
@@ -50,7 +56,6 @@ function createCard(post) {
   cardTitle.className = 'mdl-card__title';
   cardTitle.style.backgroundImage = 'url("' + post.image + '")';
   cardTitle.style.backgroundSize = 'cover';
-  cardTitle.style.height = '180px';
   cardWrapper.appendChild(cardTitle);
   var cardTitleTextElement = document.createElement('h2');
   cardTitleTextElement.style.color = 'white';
