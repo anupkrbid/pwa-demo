@@ -186,3 +186,35 @@ self.addEventListener('fetch', function(event) {
 // self.addEventListener('fetch', function(event) {
 //   return event.respondWith(event.request);
 // });
+
+self.addEventListener('sync', function(event) {
+  console.log('[Service Worker] Background Syncing ...');
+  if (event.tag === 'sync-new-posts') {
+    console.log('[Service Worker] Syncing New Post...');
+    event.waitUntil(
+      readDataAll('sync-posts').then(function(data) {
+        for (var dt of data) {
+          delete dt.id;
+          fetch('https://pwa-gram-app.firebaseio.com/posts.json', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application.json'
+            },
+            body: JSON.stringify(dt)
+          })
+            .then(function(res) {
+              return res.json();
+            })
+            .then(function(data) {
+              console.log('Data Synced', data);
+              clearData('sync-post', dt.id); // Isn't working Correctly
+            })
+            .catch(function(err) {
+              console.log('Error while Syncing Data', err);
+            });
+        }
+      })
+    );
+  }
+});

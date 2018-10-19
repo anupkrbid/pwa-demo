@@ -2,16 +2,13 @@
 var shareImageButton = document.querySelector('#share-image-button');
 var createPostArea = document.querySelector('#create-post');
 var sharedMomentsArea = document.querySelector('#shared-moments');
+var form = document.querySelector('form');
+var titleInput = document.querySelector('#title');
+var locationInput = document.querySelector('#location');
+var snackbar = document.querySelector('#confirmation-toast');
 var closeCreatePostModalButton = document.querySelector(
   '#close-create-post-modal-btn'
 );
-var dbPromise = idb.open('posts-store', 1, function(db) {
-  if (!db.objectStoreNames.contains('posts')) {
-    db.createObjectStore('posts', {
-      keyPath: 'id'
-    });
-  }
-});
 
 function openCreatePostModal() {
   createPostArea.style.display = 'block';
@@ -107,6 +104,25 @@ if ('indexedDB' in window) {
   });
 }
 
+function sendData(data) {
+  delete data.id;
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application.json'
+    },
+    body: JSON.stringify(data)
+  })
+    .then(function(res) {
+      return res.json();
+    })
+    .then(function(data) {
+      console.log('Sent Data', res);
+      updateUI();
+    });
+}
+
 // Currently not in use, Allows to cache data on demand
 function onSaveCardHandler(event) {
   if ('caches' in window) {
@@ -116,3 +132,36 @@ function onSaveCardHandler(event) {
     });
   }
 }
+
+form.addEventListener('submit', function(event) {
+  event.preventDefault();
+  if (titleInput.value.trim() === '' || locationInput.value.trim() === '') {
+    alert('Please Enter Valid Data!');
+    return;
+  }
+  closeCreatePostModal();
+  var post = {
+    id: new Date().toISOString(),
+    title: titleInput.value.trim(),
+    location: locationInput.value.trim(),
+    image:
+      'https://firebasestorage.googleapis.com/v0/b/pwa-gram-app.appspot.com/o/sf-boat.jpg?alt=media&token=3adcf68f-1444-4629-a32a-d982d209f338'
+  };
+  if ('serviceWorker' in navigator && 'SyncManager' in window) {
+    navigator.serviceWorker.ready.then(function(sw) {
+      writeData('sync-posts', post)
+        .then(function() {
+          return sw.sync.register('sync-new-posts');
+        })
+        .then(function() {
+          var data = { message: 'Your Post Was saved for syncing!' };
+          snackbar.MaterialSnackbar.showSnackbar(data);
+        })
+        .catch(function(err) {
+          console.log(err);
+        });
+    });
+  } else {
+    sendData(post);
+  }
+});
