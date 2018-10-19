@@ -105,9 +105,9 @@ if ('indexedDB' in window) {
 }
 
 function sendData(data) {
-  delete data.id;
-  fetch(url, {
+  fetch('https://us-central1-pwa-gram-app.cloudfunctions.net/storePostData', {
     method: 'POST',
+    mode: 'no-cors',
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application.json'

@@ -192,23 +192,27 @@ self.addEventListener('sync', function(event) {
   if (event.tag === 'sync-new-posts') {
     console.log('[Service Worker] Syncing New Post...');
     event.waitUntil(
-      readDataAll('sync-posts').then(function(data) {
-        for (var dt of data) {
-          delete dt.id;
-          fetch('https://pwa-gram-app.firebaseio.com/posts.json', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application.json'
-            },
-            body: JSON.stringify(dt)
-          })
+      readDataAll('sync-posts').then(function(records) {
+        console.log(records);
+        for (var record of records) {
+          fetch(
+            'https://us-central1-pwa-gram-app.cloudfunctions.net/storePostData',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application.json'
+              },
+              body: JSON.stringify(record)
+            }
+          )
             .then(function(res) {
+              console.log(res);
               return res.json();
             })
             .then(function(data) {
               console.log('Data Synced', data);
-              clearData('sync-post', dt.id); // Isn't working Correctly
+              clearData('sync-posts', data.id);
             })
             .catch(function(err) {
               console.log('Error while Syncing Data', err);
