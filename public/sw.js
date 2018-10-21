@@ -1,8 +1,8 @@
 importScripts('/src/js/lib/idb.js');
 importScripts('/src/js/utility.js');
 
-var CACHE_STATIC_NAME = 'static-v1';
-var CACHE_DYNAMIC_NAME = 'dynamic-v1';
+var CACHE_STATIC_NAME = 'static-v2';
+var CACHE_DYNAMIC_NAME = 'dynamic-v2';
 var STATIC_FILES = [
   '/',
   '/index.html',
@@ -207,7 +207,6 @@ self.addEventListener('sync', function(event) {
             }
           )
             .then(function(res) {
-              console.log(res);
               return res.json();
             })
             .then(function(data) {
@@ -221,4 +220,59 @@ self.addEventListener('sync', function(event) {
       })
     );
   }
+});
+
+self.addEventListener('notificationclick', function(event) {
+  var notification = event.notification;
+  var action = event.action;
+
+  console.log(notification);
+
+  if (action === 'confirm') {
+    console.log('confirm was chosen');
+  } else {
+    console.log(action);
+    event.waitUntil(
+      clients.matchAll().then(function(cli) {
+        var client = cli.find(function(c) {
+          return c.visibilityState === 'visible';
+        });
+
+        if (client !== undefined) {
+          client.navigate(notification.data.url);
+        } else {
+          client.openWindow(notification.data.url);
+        }
+        notification.close();
+      })
+    );
+  }
+});
+
+self.addEventListener('notificationclose', function(event) {
+  console.log('Notification was closed');
+  console.log(event.notification);
+});
+
+self.addEventListener('push', function(event) {
+  console.log('Push Notification Received');
+
+  var data = {
+    title: 'New!',
+    content: 'Something New!',
+    openUrl: '/'
+  };
+  if (event.data) {
+    data = JSON.parse(event.data.text());
+  }
+  var option = {
+    body: data.content,
+    icon: '/src/images/icons/app-icon-96x96.png',
+    badge: '/src/images/icons/app-icon-96x96.png',
+    data: {
+      url: data.openUrl
+    }
+  };
+
+  event.waitUntil(self.registration.showNotification(data.title, options));
 });

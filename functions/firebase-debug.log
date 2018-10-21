@@ -1,0 +1,28 @@
+[debug] [2018-10-20T22:20:58.131Z] ----------------------------------------------------------------------
+[debug] [2018-10-20T22:20:58.133Z] Command:       /usr/bin/node /usr/bin/firebase functions:shell
+[debug] [2018-10-20T22:20:58.134Z] CLI Version:   4.2.1
+[debug] [2018-10-20T22:20:58.134Z] Platform:      linux
+[debug] [2018-10-20T22:20:58.134Z] Node Version:  v8.11.2
+[debug] [2018-10-20T22:20:58.134Z] Time:          Sun Oct 21 2018 03:50:58 GMT+0530 (DST)
+[debug] [2018-10-20T22:20:58.134Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2018-10-20T22:20:58.145Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2018-10-20T22:20:58.145Z] > authorizing via signed-in user
+[debug] [2018-10-20T22:20:58.147Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2018-10-20T22:20:58.147Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token  
+
+[debug] [2018-10-20T22:20:58.627Z] <<< HTTP RESPONSE 200
+[debug] [2018-10-20T22:20:58.670Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/pwa-gram-app  
+ 
+[debug] [2018-10-20T22:21:00.083Z] <<< HTTP RESPONSE 200
+[debug] [2018-10-20T22:21:15.410Z] Error: EACCES: permission denied, mkdir '/usr/lib/node_modules/firebase-tools/node_modules/@google-cloud/functions-emulator/logs'
+    at Object.fs.mkdirSync (fs.js:885:18)
+    at Object.assertLogsPath (/usr/lib/node_modules/firebase-tools/node_modules/@google-cloud/functions-emulator/src/emulator/logs.js:65:10)
+    at new Controller (/usr/lib/node_modules/firebase-tools/node_modules/@google-cloud/functions-emulator/src/cli/controller.js:77:32)
+    at FunctionsEmulator.start (/usr/lib/node_modules/firebase-tools/lib/functionsEmulator.js:113:21)
+    at Command.module.exports [as _action] (/usr/lib/node_modules/firebase-tools/lib/functionsShellCommandAction.js:18:6)
+    at /usr/lib/node_modules/firebase-tools/lib/command.js:202:29
+    at <anonymous>
+    at process._tickDomainCallback (internal/process/next_tick.js:228:7)
+[error] 
+[error] Error: An unexpected error has occurred.
